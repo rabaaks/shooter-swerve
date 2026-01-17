@@ -1,14 +1,6 @@
-// Copyright (c) 2021-2026 Littleton Robotics
-// http://github.com/Mechanical-Advantage
-//
-// Use of this source code is governed by a BSD
-// license that can be found in the LICENSE file
-// at the root directory of this project.
-
 package frc.robot.subsystems.vision;
 
-import static frc.robot.subsystems.vision.VisionConstants.aprilTagLayout;
-
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import java.util.function.Supplier;
@@ -30,10 +22,12 @@ public class VisionIOPhotonVisionSim extends VisionIOPhotonVision {
    * @param poseSupplier Supplier for the robot pose to use in simulation.
    */
   public VisionIOPhotonVisionSim(
-      String name, Transform3d robotToCamera, Supplier<Pose2d> poseSupplier) {
-    super(name, robotToCamera);
+      String name,
+      Transform3d robotToCamera,
+      Supplier<Pose2d> poseSupplier,
+      AprilTagFieldLayout layout) {
+    super(name, robotToCamera, () -> poseSupplier.get().getRotation(), layout);
     this.poseSupplier = poseSupplier;
-
     // Initialize vision sim
     if (visionSim == null) {
       visionSim = new VisionSystemSim("main");
@@ -42,6 +36,9 @@ public class VisionIOPhotonVisionSim extends VisionIOPhotonVision {
 
     // Add sim camera
     var cameraProperties = new SimCameraProperties();
+    cameraProperties.setAvgLatencyMs(35);
+    cameraProperties.setFPS(50);
+    cameraProperties.setLatencyStdDevMs(10);
     cameraSim = new PhotonCameraSim(camera, cameraProperties, aprilTagLayout);
     visionSim.addCamera(cameraSim, robotToCamera);
   }
@@ -49,6 +46,7 @@ public class VisionIOPhotonVisionSim extends VisionIOPhotonVision {
   @Override
   public void updateInputs(VisionIOInputs inputs) {
     visionSim.update(poseSupplier.get());
+
     super.updateInputs(inputs);
   }
 }

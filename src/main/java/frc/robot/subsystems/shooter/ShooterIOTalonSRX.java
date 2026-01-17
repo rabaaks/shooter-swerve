@@ -6,13 +6,13 @@ import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.TalonSRXConfiguration;
 
-public class ShooterIOReal implements ShooterIO {
+public class ShooterIOTalonSRX implements ShooterIO {
   private final TalonSRX feedMotor = new TalonSRX(feedCanId);
   private final TalonSRX shootMotor = new TalonSRX(shootCanId);
 
   private double shootVelocityTarget = 0.0;
 
-  public ShooterIOReal() {
+  public ShooterIOTalonSRX() {
     TalonSRXConfiguration config = new TalonSRXConfiguration();
     config.voltageCompSaturation = 12.0;
 

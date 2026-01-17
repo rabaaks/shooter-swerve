@@ -25,6 +25,8 @@ public final class Constants {
       new Translation2d(targetTranslation.getX(), targetTranslation.getY());
   public static final double targetZ = targetTranslation.getZ();
 
+  public static final boolean tuningMode = true;
+
   public static enum Mode {
     /** Running on a real robot. */
     REAL,
