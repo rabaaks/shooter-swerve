@@ -4,6 +4,8 @@ import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 import static frc.robot.subsystems.shooter.ShooterConstants.*;
 
+import org.littletonrobotics.junction.Logger;
+
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Voltage;
@@ -24,6 +26,7 @@ public class Shooter extends SubsystemBase {
   @Override
   public void periodic() {
     io.updateInputs(inputs);
+    Logger.processInputs("Shooter", inputs);
   }
 
   public void setTarget(Translation2d target) {

@@ -25,6 +25,7 @@ public class Vision extends SubsystemBase {
   private final Alert[] disconnectedAlerts;
   private final AprilTagFieldLayout aprilTagLayout;
   private Pose3d[] tagPoses;
+
   public Vision(VisionConsumer consumer, AprilTagFieldLayout layout, VisionIO... io) {
     this.consumer = consumer;
     this.io = io;
@@ -36,8 +37,8 @@ public class Vision extends SubsystemBase {
       inputs[i] = new VisionIOInputsAutoLogged();
     }
 
-       tagPoses = new Pose3d[VisionConstants.fieldLayout.getTags().size()];
-    for (int i=0;i<tagPoses.length; i++) {
+    tagPoses = new Pose3d[VisionConstants.fieldLayout.getTags().size()];
+    for (int i = 0; i < tagPoses.length; i++) {
       tagPoses[i] = VisionConstants.fieldLayout.getTags().get(i).pose;
     }
     Logger.recordOutput("Vision/Tags", tagPoses);

@@ -15,10 +15,8 @@ import edu.wpi.first.wpilibj.RobotBase;
 import frc.robot.subsystems.vision.VisionConstants;
 
 /**
- * This class defines the runtime mode used by AdvantageKit. The mode is always
- * "real" when running
- * on a roboRIO. Change the value of "simMode" to switch between "sim" (physics
- * sim) and "replay"
+ * This class defines the runtime mode used by AdvantageKit. The mode is always "real" when running
+ * on a roboRIO. Change the value of "simMode" to switch between "sim" (physics sim) and "replay"
  * (log replay from a file).
  */
 public final class Constants {
@@ -26,14 +24,17 @@ public final class Constants {
   public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : simMode;
 
   public static final Translation3d targetTranslation = new Translation3d(5, 5, 5);
-  public static final Translation2d targetFieldTranslation = new Translation2d(targetTranslation.getX(),
-      targetTranslation.getY());
+  public static final Translation2d targetFieldTranslation =
+      new Translation2d(targetTranslation.getX(), targetTranslation.getY());
   public static final double targetZ = targetTranslation.getZ();
 
   public static final boolean tuningMode = true;
 
-  public static Pose2d hubCenter = new Pose2d(VisionConstants.fieldLayout.getTagPose(18).get().getX(),
-      VisionConstants.fieldLayout.getTagPose(26).get().getY(), new Rotation2d());
+  public static Pose2d hubCenter =
+      new Pose2d(
+          VisionConstants.fieldLayout.getTagPose(18).get().getX(),
+          VisionConstants.fieldLayout.getTagPose(26).get().getY(),
+          new Rotation2d());
 
   public static enum Mode {
     /** Running on a real robot. */
