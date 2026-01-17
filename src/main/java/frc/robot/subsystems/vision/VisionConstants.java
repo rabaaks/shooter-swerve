@@ -1,41 +1,22 @@
-// Copyright (c) 2021-2026 Littleton Robotics
-// http://github.com/Mechanical-Advantage
-//
-// Use of this source code is governed by a BSD
-// license that can be found in the LICENSE file
-// at the root directory of this project.
-
 package frc.robot.subsystems.vision;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.util.Units;
 
+/** Add your docs here. */
 public class VisionConstants {
-  // AprilTag layout
-  public static AprilTagFieldLayout aprilTagLayout =
-      AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
-
-  // Camera names, must match names configured on coprocessor
-  public static String camera0Name = "camera_0";
-  public static String camera1Name = "camera_1";
-
-  // Robot to camera transforms
-  // (Not used by Limelight, configure in web UI instead)
-  public static Transform3d robotToCamera0 =
-      new Transform3d(0.2, 0.0, 0.2, new Rotation3d(0.0, -0.4, 0.0));
-  public static Transform3d robotToCamera1 =
-      new Transform3d(-0.2, 0.0, 0.2, new Rotation3d(0.0, -0.4, Math.PI));
 
   // Basic filtering thresholds
-  public static double maxAmbiguity = 0.3;
-  public static double maxZError = 0.75;
+  public static double maxAmbiguity = 0.4; // 0.3d
+  public static double maxZError = 0.12; // 0.75
 
   // Standard deviation baselines, for 1 meter distance and 1 tag
   // (Adjusted automatically based on distance and # of tags)
-  public static double linearStdDevBaseline = 0.02; // Meters
-  public static double angularStdDevBaseline = 0.06; // Radians
+  public static double linearStdDevBaseline = 4.0; // Meters
+  public static double angularStdDevBaseline = 4.5; // Radians
 
   // Standard deviation multipliers for each camera
   // (Adjust to trust some cameras more than others)
@@ -49,4 +30,30 @@ public class VisionConstants {
   public static double linearStdDevMegatag2Factor = 0.5; // More stable than full 3D solve
   public static double angularStdDevMegatag2Factor =
       Double.POSITIVE_INFINITY; // No rotation data available
+
+  public static AprilTagFieldLayout fieldLayout =
+      AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltAndymark);
+
+  public static Transform3d robotToLeftCam =
+      new Transform3d(
+          Units.inchesToMeters(12.066),
+          Units.inchesToMeters(11.906),
+          Units.inchesToMeters(8.355),
+          new Rotation3d(0.0, -Units.degreesToRadians(13.125000), Units.degreesToRadians(-35)));
+  public static Transform3d robotToRightCam =
+      new Transform3d(
+          Units.inchesToMeters(12.066),
+          Units.inchesToMeters(-11.906),
+          Units.inchesToMeters(8.355),
+          new Rotation3d(0.0, -Units.degreesToRadians(13.125000), Units.degreesToRadians(35)));
+
+  public static double trigLinearStdDevBaseline = 0.35; // Meters
+  public static double trigAngularStdDevBaseline = Double.POSITIVE_INFINITY; // Radians
+
+  public static double multitagLinearStdDevBaseline = 0.07; // Meters
+  public static double multitagAngularStdDevBaseline = 0.03; // Radians
+
+  public static double averageTagDistance = 1.25;
+
+
 }
