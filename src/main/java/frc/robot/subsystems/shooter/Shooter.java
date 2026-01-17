@@ -40,7 +40,7 @@ public class Shooter extends SubsystemBase {
         Math.sqrt(
             g * Math.pow(x, 2) / (2 * Math.pow(Math.cos(theta), 2) * (x * Math.tan(theta) - y)));
 
-    io.setShootVelocity(v0);
+    io.setShootVelocity(v0 / flywheelRadius);
   }
 
   public void feed() {

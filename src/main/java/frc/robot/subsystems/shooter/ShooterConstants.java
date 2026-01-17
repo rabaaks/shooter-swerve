@@ -10,6 +10,8 @@ public class ShooterConstants {
 
   public static final double shooterAngle = 0.0;
 
+  public static final double flywheelRadius = 0.0;
+
   public static final LoggedTunableNumber kP = new LoggedTunableNumber("/Shooter/kP", 1.0);
   public static final LoggedTunableNumber kI = new LoggedTunableNumber("/Shooter/kI", 0.0);
   public static final LoggedTunableNumber kD = new LoggedTunableNumber("/Shooter/kD", 0.0);
