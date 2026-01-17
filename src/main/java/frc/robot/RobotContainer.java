@@ -8,7 +8,7 @@
 package frc.robot;
 
 import static frc.robot.Constants.*;
-import static frc.robot.subsystems.vision.VisionConstants.robotToCamera0;
+import static frc.robot.subsystems.vision.VisionConstants.*;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -84,7 +84,9 @@ public class RobotContainer {
         vision =
             new Vision(
                 drive::addVisionMeasurement,
-                new VisionIO[] {new VisionIOPhotonVision("camera0", robotToCamera0)});
+                new VisionIO[] {
+                    new VisionIOPhotonVision("camera0", robotToCamera0),
+                    new VisionIOPhotonVision("camera1", robotToCamera1)});
         break;
 
       case SIM:
@@ -101,8 +103,8 @@ public class RobotContainer {
             new Vision(
                 drive::addVisionMeasurement,
                 new VisionIO[] {
-                  new VisionIOPhotonVisionSim("camera0", robotToCamera0, drive::getPose)
-                });
+                  new VisionIOPhotonVisionSim("camera0", robotToCamera0, drive::getPose),
+                  new VisionIOPhotonVision("camera1", robotToCamera1)});
         break;
 
       default:
@@ -195,8 +197,8 @@ public class RobotContainer {
             Commands.parallel(
                 Commands.runOnce(shooter::stopFeed),
                 Commands.runOnce(shooter::stopShoot),
-                DriveCommands.arcadeDrive(
-                    drive, () -> -controller.getLeftY(), () -> -controller.getRightX())));
+                DriveCommands.joystickDrive(
+                    drive, () -> -controller.getLeftY(), () -> -controller.getRightX(), () -> -controller.getRightY())));
 
     // Lock onto target
     // Drive gets angle to target, shooter gets distance and height (delta x and delta y)
@@ -205,11 +207,11 @@ public class RobotContainer {
         .or(stateTriggers.get(RobotState.SCORE))
         .onTrue(
             Commands.parallel(
-                DriveCommands.driveAtAngle(
+                DriveCommands.joystickDriveAtAngle(
                     drive,
                     () -> -controller.getLeftY(),
-                    () ->
-                        targetFieldTranslation.minus(drive.getPose().getTranslation()).getAngle()),
+                    () -> -controller.getRightX(),
+                    () -> targetFieldTranslation.minus(drive.getPose().getTranslation()).getAngle()),
                 Commands.run(
                     () ->
                         shooter.setTarget(
