@@ -19,6 +19,8 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
+import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
+
 public class ShooterIOSparkMax implements ShooterIO {
   private final SparkMax shooter;
   private final SparkMax feeder;
@@ -27,6 +29,8 @@ public class ShooterIOSparkMax implements ShooterIO {
   private final RelativeEncoder encoder;
 
   private SparkMaxConfig config;
+
+  private InterpolatingDoubleTreeMap lerp = new InterpolatingDoubleTreeMap();
 
   public ShooterIOSparkMax(int shootID, int feederID) {
     shooter = new SparkMax(shootID, MotorType.kBrushless);
@@ -50,6 +54,8 @@ public class ShooterIOSparkMax implements ShooterIO {
     encoder = shooter.getEncoder();
 
     shooter.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
+    lerp.put(0.0, 0.0);
   }
 
   @Override
@@ -94,6 +100,11 @@ public class ShooterIOSparkMax implements ShooterIO {
   @Override
   public void setShootVelocity(double velocity) {
     controller.setSetpoint(velocity, ControlType.kVelocity);
+  }
+
+  @Override
+  public void setBallVelocity(double velocity) {
+    setShootVelocity(lerp.get(velocity));
   }
 
   @Override
