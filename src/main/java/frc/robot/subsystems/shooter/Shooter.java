@@ -59,6 +59,10 @@ public class Shooter extends SubsystemBase {
     return inputs.shootAppliedVolts;
   }
 
+  public void setShooterVelocity(double velocity){
+    io.setShootVelocity(velocity);
+  }
+
   public AngularVelocity getShooterVelocity() {
     return AngularVelocity.ofBaseUnits(inputs.shootVelocity, RadiansPerSecond);
   }

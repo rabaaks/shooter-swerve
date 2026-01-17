@@ -32,6 +32,7 @@ import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.subsystems.shooter.Shooter;
+import frc.robot.subsystems.shooter.ShooterConstants;
 import frc.robot.subsystems.shooter.ShooterIO;
 import frc.robot.subsystems.shooter.ShooterIOSim;
 import frc.robot.subsystems.shooter.ShooterIOSparkMax;
@@ -184,6 +185,7 @@ public class RobotContainer {
     }
 
     controller.povDown().whileTrue(shooter.sysID());
+    controller.a().onTrue(Commands.runOnce(()-> shooter.setShooterVelocity(ShooterConstants.velocitySetpoint.getAsDouble()))).onFalse(Commands.runOnce(shooter::stopShoot));
   }
 
   private void configureStates() {
