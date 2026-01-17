@@ -37,6 +37,8 @@ public class ShooterIOSparkMax implements ShooterIO {
     config.smartCurrentLimit(100);
     config.voltageCompensation(12.0);
 
+    config.encoder.velocityConversionFactor((2 * Math.PI) / 60);
+
     config.closedLoop.feedForward.kV(ShooterConstants.kV.getAsDouble());
     config.closedLoop.feedForward.kA(ShooterConstants.kA.getAsDouble());
     config.closedLoop.pid(
@@ -58,7 +60,7 @@ public class ShooterIOSparkMax implements ShooterIO {
     inputs.shootAppliedVolts = shooter.getAppliedOutput() * shooter.getBusVoltage();
     inputs.shootCurrent = new double[] {shooter.getAppliedOutput()};
 
-    inputs.shootVelocity = Units.rotationsPerMinuteToRadiansPerSecond(encoder.getVelocity());
+    inputs.shootVelocity = encoder.getVelocity();
 
     if (kP.hasChanged(hashCode())) {
       this.updatePID();
