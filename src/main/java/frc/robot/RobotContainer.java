@@ -12,6 +12,7 @@ import static frc.robot.subsystems.vision.VisionConstants.*;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -85,8 +86,9 @@ public class RobotContainer {
             new Vision(
                 drive::addVisionMeasurement,
                 new VisionIO[] {
-                    new VisionIOPhotonVision("camera0", robotToCamera0),
-                    new VisionIOPhotonVision("camera1", robotToCamera1)});
+                  new VisionIOPhotonVision("camera0", robotToCamera0),
+                  new VisionIOPhotonVision("camera1", robotToCamera1)
+                });
         break;
 
       case SIM:
@@ -104,7 +106,8 @@ public class RobotContainer {
                 drive::addVisionMeasurement,
                 new VisionIO[] {
                   new VisionIOPhotonVisionSim("camera0", robotToCamera0, drive::getPose),
-                  new VisionIOPhotonVision("camera1", robotToCamera1)});
+                  new VisionIOPhotonVision("camera1", robotToCamera1)
+                });
         break;
 
       default:
@@ -156,7 +159,7 @@ public class RobotContainer {
     stateRequests.put(RobotState.SCORE, controller.rightTrigger());
 
     for (RobotState state : RobotState.values()) {
-      stateTriggers.put(state, new Trigger(() -> this.state == state));
+      stateTriggers.put(state, new Trigger(() -> this.state == state && DriverStation.isEnabled()));
     }
   }
 
@@ -195,10 +198,14 @@ public class RobotContainer {
         .or(stateTriggers.get(RobotState.INTAKE))
         .onTrue(
             Commands.parallel(
+                Commands.run(() -> System.out.println("idl")),
                 Commands.runOnce(shooter::stopFeed),
                 Commands.runOnce(shooter::stopShoot),
                 DriveCommands.joystickDrive(
-                    drive, () -> -controller.getLeftY(), () -> -controller.getRightX(), () -> -controller.getRightY())));
+                    drive,
+                    () -> -controller.getLeftY(),
+                    () -> -controller.getLeftX(),
+                    () -> -controller.getRightX())));
 
     // Lock onto target
     // Drive gets angle to target, shooter gets distance and height (delta x and delta y)
@@ -211,7 +218,8 @@ public class RobotContainer {
                     drive,
                     () -> -controller.getLeftY(),
                     () -> -controller.getRightX(),
-                    () -> targetFieldTranslation.minus(drive.getPose().getTranslation()).getAngle()),
+                    () ->
+                        targetFieldTranslation.minus(drive.getPose().getTranslation()).getAngle()),
                 Commands.run(
                     () ->
                         shooter.setTarget(
