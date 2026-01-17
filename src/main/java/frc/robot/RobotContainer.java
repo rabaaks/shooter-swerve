@@ -8,6 +8,8 @@
 package frc.robot;
 
 import static frc.robot.Constants.*;
+import static frc.robot.subsystems.shooter.ShooterConstants.feedCanId;
+import static frc.robot.subsystems.shooter.ShooterConstants.shootCanId;
 import static frc.robot.subsystems.vision.VisionConstants.*;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -32,6 +34,7 @@ import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.ShooterIO;
 import frc.robot.subsystems.shooter.ShooterIOSim;
+import frc.robot.subsystems.shooter.ShooterIOSparkMax;
 import frc.robot.subsystems.shooter.ShooterIOTalonSRX;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionConstants;
@@ -53,144 +56,121 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
  * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
-    // Subsystems
-    private final Drive drive;
-    private final Shooter shooter;
-    private final Vision vision;
+  // Subsystems
+  private final Drive drive;
+  private final Shooter shooter;
+  private final Vision vision;
 
-    // Controller
-    private final CommandXboxController controller = new CommandXboxController(0);
+  // Controller
+  private final CommandXboxController controller = new CommandXboxController(0);
 
-    // Dashboard inputs
-    private final LoggedDashboardChooser<Command> autoChooser;
+  // Dashboard inputs
+  private final LoggedDashboardChooser<Command> autoChooser;
 
-    private Map<RobotState, Trigger> stateRequests = new EnumMap<>(RobotState.class);
-    private Map<RobotState, Trigger> stateTriggers = new EnumMap<>(RobotState.class);
+  private Map<RobotState, Trigger> stateRequests = new EnumMap<>(RobotState.class);
+  private Map<RobotState, Trigger> stateTriggers = new EnumMap<>(RobotState.class);
 
-    @AutoLogOutput(key = "Robot State/Current State")
-    private RobotState state = RobotState.IDLE;
+  @AutoLogOutput(key = "Robot State/Current State")
+  private RobotState state = RobotState.IDLE;
 
-    @AutoLogOutput(key = "Robot State/Previous State")
-    private RobotState previousState = RobotState.IDLE;
+  @AutoLogOutput(key = "Robot State/Previous State")
+  private RobotState previousState = RobotState.IDLE;
 
-    /**
-     * The container for the robot. Contains subsystems, OI devices, and commands.
-     */
-    public RobotContainer() {
-        switch (Constants.currentMode) {
-            case REAL:
-                // Real robot, instantiate hardware IO implementations
-                drive = new Drive(
-                        new GyroIOPigeon2(),
-                        new ModuleIOTalonFX(TunerConstants.FrontLeft),
-                        new ModuleIOTalonFX(TunerConstants.FrontRight),
-                        new ModuleIOTalonFX(TunerConstants.BackLeft),
-                        new ModuleIOTalonFX(TunerConstants.BackRight));
-                shooter = new Shooter(new ShooterIOTalonSRX());
-                vision = new Vision(
-                        drive::addVisionMeasurement,
-                        VisionConstants.fieldLayout,
-                        new VisionIOPhotonVision(
-                                "left",
-                                VisionConstants.robotToLeftCam,
-                                drive::getRotation,
-                                VisionConstants.fieldLayout),
-                        new VisionIOPhotonVision(
-                                "right",
-                                VisionConstants.robotToRightCam,
-                                drive::getRotation,
-                                VisionConstants.fieldLayout));
-                break;
+  /**
+   * The container for the robot. Contains subsystems, OI devices, and commands.
+   */
+  public RobotContainer() {
+    switch (Constants.currentMode) {
+      case REAL:
+        // Real robot, instantiate hardware IO implementations
+        drive = new Drive(
+            new GyroIOPigeon2(),
+            new ModuleIOTalonFX(TunerConstants.FrontLeft),
+            new ModuleIOTalonFX(TunerConstants.FrontRight),
+            new ModuleIOTalonFX(TunerConstants.BackLeft),
+            new ModuleIOTalonFX(TunerConstants.BackRight));
+        shooter = new Shooter(new ShooterIOSparkMax(shootCanId, feedCanId));
+        vision = new Vision(
+            drive::addVisionMeasurement,
+            VisionConstants.fieldLayout,
+            new VisionIOPhotonVision(
+                "left",
+                VisionConstants.robotToLeftCam,
+                drive::getRotation,
+                VisionConstants.fieldLayout),
+            new VisionIOPhotonVision(
+                "right",
+                VisionConstants.robotToRightCam,
+                drive::getRotation,
+                VisionConstants.fieldLayout));
+        break;
 
-            case SIM:
-                // Sim robot, instantiate physics sim IO implementations
-                drive = new Drive(
-                        new GyroIO() {
-                        },
-                        new ModuleIOSim(TunerConstants.FrontLeft),
-                        new ModuleIOSim(TunerConstants.FrontRight),
-                        new ModuleIOSim(TunerConstants.BackLeft),
-                        new ModuleIOSim(TunerConstants.BackRight));
-                shooter = new Shooter(new ShooterIOSim());
-                vision = new Vision(
-                        drive::addVisionMeasurement,
-                        VisionConstants.fieldLayout,
-                        new VisionIOPhotonVision(
-                                "left",
-                                VisionConstants.robotToLeftCam,
-                                drive::getRotation,
-                                VisionConstants.fieldLayout),
-                        new VisionIOPhotonVision(
-                                "right",
-                                VisionConstants.robotToRightCam,
-                                drive::getRotation,
-                                VisionConstants.fieldLayout));
-                break;
+      case SIM:
+        // Sim robot, instantiate physics sim IO implementations
+        drive = new Drive(
+            new GyroIO() {
+            },
+            new ModuleIOSim(TunerConstants.FrontLeft),
+            new ModuleIOSim(TunerConstants.FrontRight),
+            new ModuleIOSim(TunerConstants.BackLeft),
+            new ModuleIOSim(TunerConstants.BackRight));
+        shooter = new Shooter(new ShooterIOSim());
+        vision = new Vision(
+            drive::addVisionMeasurement,
+            VisionConstants.fieldLayout,
+            new VisionIOPhotonVision(
+                "left",
+                VisionConstants.robotToLeftCam,
+                drive::getRotation,
+                VisionConstants.fieldLayout),
+            new VisionIOPhotonVision(
+                "right",
+                VisionConstants.robotToRightCam,
+                drive::getRotation,
+                VisionConstants.fieldLayout));
+        break;
 
-            default:
-                // Replayed robot, disable IO implementations
-                drive = new Drive(
-                        new GyroIO() {
-                        },
-                        new ModuleIO() {
-                        },
-                        new ModuleIO() {
-                        },
-                        new ModuleIO() {
-                        },
-                        new ModuleIO() {
-                        });
-                shooter = new Shooter(new ShooterIO() {
-                });
-                vision = new Vision(
-                        drive::addVisionMeasurement,
-                        VisionConstants.fieldLayout,
-                        new VisionIO() {
-                        },
-                        new VisionIO() {
-                        });
-                break;
-        }
-
-        // Set up auto routines
-        autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
-
-        // Set up SysId routines
-        autoChooser.addOption(
-                "Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(drive));
-        autoChooser.addOption(
-                "Drive SysId (Quasistatic Forward)",
-                drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-        autoChooser.addOption(
-                "Drive SysId (Quasistatic Reverse)",
-                drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-        autoChooser.addOption(
-                "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
-        autoChooser.addOption(
-                "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-
-        // Configure the button bindings
-        configureButtonBindings();
-        configureStates();
+      default:
+        // Replayed robot, disable IO implementations
+        drive = new Drive(
+            new GyroIO() {
+            },
+            new ModuleIO() {
+            },
+            new ModuleIO() {
+            },
+            new ModuleIO() {
+            },
+            new ModuleIO() {
+            });
+        shooter = new Shooter(new ShooterIO() {
+        });
+        vision = new Vision(
+            drive::addVisionMeasurement,
+            VisionConstants.fieldLayout,
+            new VisionIO() {
+            },
+            new VisionIO() {
+            });
+        break;
     }
 
-    /**
-     * Use this method to define your button->command mappings. Buttons can be
-     * created by
-     * instantiating a {@link GenericHID} or one of its subclasses ({@link
-     * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing
-     * it to a {@link
-     * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
-     */
-    private void configureButtonBindings() {
-        stateRequests.put(RobotState.IDLE, controller.y());
-        stateRequests.put(RobotState.INTAKE, controller.leftTrigger());
-        stateRequests.put(RobotState.PRESCORE, controller.rightBumper());
-        stateRequests.put(RobotState.SCORE, controller.rightTrigger());
+    // Set up auto routines
+    autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
 
-        for (RobotState state : RobotState.values()) {
-            stateTriggers.put(state, new Trigger(() -> this.state == state));
-        }
+    // Set up SysId routines
+    autoChooser.addOption(
+        "Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(drive));
+    autoChooser.addOption(
+        "Drive SysId (Quasistatic Forward)",
+        drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+    autoChooser.addOption(
+        "Drive SysId (Quasistatic Reverse)",
+        drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+    autoChooser.addOption(
+        "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
+    autoChooser.addOption(
+        "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
     // Configure the button bindings
     configureButtonBindings();
@@ -198,9 +178,11 @@ public class RobotContainer {
   }
 
   /**
-   * Use this method to define your button->command mappings. Buttons can be created by
+   * Use this method to define your button->command mappings. Buttons can be
+   * created by
    * instantiating a {@link GenericHID} or one of its subclasses ({@link
-   * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing it to a {@link
+   * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing
+   * it to a {@link
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
@@ -211,37 +193,39 @@ public class RobotContainer {
 
     for (RobotState state : RobotState.values()) {
       stateTriggers.put(state, new Trigger(() -> this.state == state && DriverStation.isEnabled()));
-        controller.povDown().whileTrue(shooter.sysID());
     }
 
-    private void configureStates() {
-        // Transitions
-        stateTriggers
-                .get(RobotState.INTAKE)
-                .or(stateTriggers.get(RobotState.PRESCORE))
-                .and(stateRequests.get(RobotState.IDLE))
-                .onTrue(forceState(RobotState.IDLE));
+    controller.povDown().whileTrue(shooter.sysID());
+  }
 
-        stateTriggers
-                .get(RobotState.IDLE)
-                .and(stateRequests.get(RobotState.INTAKE))
-                .onTrue(forceState(RobotState.INTAKE));
+  private void configureStates() {
+    // Transitions
+    stateTriggers
+        .get(RobotState.INTAKE)
+        .or(stateTriggers.get(RobotState.PRESCORE))
+        .and(stateRequests.get(RobotState.IDLE))
+        .onTrue(forceState(RobotState.IDLE));
 
-        stateTriggers
-                .get(RobotState.IDLE)
-                .or(stateTriggers.get(RobotState.INTAKE))
-                .and(stateRequests.get(RobotState.PRESCORE))
-                .onTrue(forceState(RobotState.PRESCORE));
+    stateTriggers
+        .get(RobotState.IDLE)
+        .and(stateRequests.get(RobotState.INTAKE))
+        .onTrue(forceState(RobotState.INTAKE));
 
-        stateTriggers
-                .get(RobotState.PRESCORE)
-                .and(stateRequests.get(RobotState.SCORE))
-                .onTrue(forceState(RobotState.SCORE));
+    stateTriggers
+        .get(RobotState.IDLE)
+        .or(stateTriggers.get(RobotState.INTAKE))
+        .and(stateRequests.get(RobotState.PRESCORE))
+        .onTrue(forceState(RobotState.PRESCORE));
 
-        stateTriggers
-                .get(RobotState.SCORE)
-                .and(stateRequests.get(RobotState.SCORE))
-                .onFalse(forceState(RobotState.PRESCORE));
+    stateTriggers
+        .get(RobotState.PRESCORE)
+        .and(stateRequests.get(RobotState.SCORE))
+        .onTrue(forceState(RobotState.SCORE));
+
+    stateTriggers
+        .get(RobotState.SCORE)
+        .and(stateRequests.get(RobotState.SCORE))
+        .onFalse(forceState(RobotState.PRESCORE));
 
     // Normal arcade drive
     stateTriggers
@@ -259,7 +243,8 @@ public class RobotContainer {
                     () -> -controller.getRightX())));
 
     // Lock onto target
-    // Drive gets angle to target, shooter gets distance and height (delta x and delta y)
+    // Drive gets angle to target, shooter gets distance and height (delta x and
+    // delta y)
     stateTriggers
         .get(RobotState.PRESCORE)
         .or(stateTriggers.get(RobotState.SCORE))
@@ -269,38 +254,36 @@ public class RobotContainer {
                     drive,
                     () -> -controller.getLeftY(),
                     () -> -controller.getRightX(),
-                    () ->
-                        targetFieldTranslation.minus(drive.getPose().getTranslation()).getAngle()),
+                    () -> targetFieldTranslation.minus(drive.getPose().getTranslation()).getAngle()),
                 Commands.run(
-                    () ->
-                        shooter.setTarget(
-                            new Translation2d(
-                                drive
-                                    .getPose()
-                                    .getTranslation()
-                                    .getDistance(targetFieldTranslation),
-                                targetZ)))));
+                    () -> shooter.setTarget(
+                        new Translation2d(
+                            drive
+                                .getPose()
+                                .getTranslation()
+                                .getDistance(targetFieldTranslation),
+                            targetZ)))));
 
-        stateTriggers.get(RobotState.PRESCORE).onTrue(Commands.runOnce(shooter::stopFeed));
+    stateTriggers.get(RobotState.PRESCORE).onTrue(Commands.runOnce(shooter::stopFeed));
 
-        stateTriggers.get(RobotState.SCORE).onTrue(Commands.runOnce(shooter::feed));
-    }
+    stateTriggers.get(RobotState.SCORE).onTrue(Commands.runOnce(shooter::feed));
+  }
 
-    private Command forceState(RobotState nextState) {
-        return Commands.runOnce(
-                () -> {
-                    System.out.println("Changing state to " + nextState);
-                    previousState = state;
-                    state = nextState;
-                });
-    }
+  private Command forceState(RobotState nextState) {
+    return Commands.runOnce(
+        () -> {
+          System.out.println("Changing state to " + nextState);
+          previousState = state;
+          state = nextState;
+        });
+  }
 
-    /**
-     * Use this to pass the autonomous command to the main {@link Robot} class.
-     *
-     * @return the command to run in autonomous
-     */
-    public Command getAutonomousCommand() {
-        return autoChooser.get();
-    }
+  /**
+   * Use this to pass the autonomous command to the main {@link Robot} class.
+   *
+   * @return the command to run in autonomous
+   */
+  public Command getAutonomousCommand() {
+    return autoChooser.get();
+  }
 }
